@@ -1,0 +1,340 @@
+import React, { useState } from 'react';
+import { CheckCircle2, XCircle, ChevronRight, RotateCcw, Award, BookOpen, MapPin, Briefcase, TreePine, User, GraduationCap, ArrowRight, Lightbulb, Send, UserCircle } from 'lucide-react';
+
+const quizData = {
+  1: {
+    unit: 5,
+    title: "ระดับที่ 1: Our Friends",
+    topic: "ลักษณะภายนอกและการเปรียบเทียบ",
+    tutorial: "สรุปบทเรียน: \n1. การถามลักษณะ: ใช้ 'What does (he/she) look like?' \n2. การบอกลักษณะ: ใช้ 'has' กับประธานคนเดียว (He/She has curly hair) \n3. การเปรียบเทียบขั้นกว่า (Comparative): เติม -er หลังคำคุณศัพท์สั้นๆ และตามด้วย than เช่น taller than \n4. การเปรียบเทียบขั้นสุด (Superlative): ใช้ the นำหน้าและเติม -est เช่น the tallest",
+    questions: [
+      { q: "What _______ she look like?", options: ["do", "does", "is", "has"], correct: 1, exp: "ใช้ 'does' กับประธานเอกพจน์ (He/She/It) ในประโยคคำถามที่ถามลักษณะด้วยคำว่า look like" },
+      { q: "She _______ long, straight hair.", options: ["is", "have", "has", "does"], correct: 2, exp: "ใช้ 'has' เพื่อบอกลักษณะที่มี (เช่น ผม, ตา) สำหรับประธานคนเดียว (She)" },
+      { q: "My father is _______ than my uncle.", options: ["tall", "taller", "tallest", "more tall"], correct: 1, exp: "การเปรียบเทียบคน 2 คน (Comparative) ต้องเติม -er และตามด้วย than (สูงกว่า)" },
+      { q: "He is the _______ student in the class.", options: ["strong", "stronger", "strongest", "more strong"], correct: 2, exp: "การเปรียบเทียบที่สุดในกลุ่ม (Superlative) ต้องมี 'the' นำหน้าและเติม -est (แข็งแรงที่สุด)" },
+      { q: "Does he _______ glasses?", options: ["has", "have", "having", "is"], correct: 1, exp: "เมื่อมี 'Does' ในประโยคคำถามแล้ว คำกริยาต้องกลับเป็นร่างปกติ คือ 'have' เสมอ" }
+    ]
+  },
+  2: {
+    unit: 6,
+    title: "ระดับที่ 2: In the City",
+    topic: "สถานที่และเหตุการณ์ที่กำลังทำ",
+    tutorial: "สรุปบทเรียน: \n1. Present Continuous: ใช้บอกสิ่งที่ 'กำลังทำ' ในตอนนี้ \n2. โครงสร้าง: Subject + is/am/are + กริยาเติม -ing \n3. หลักการใช้: I ใช้กับ am / He, She, It ใช้กับ is / You, We, They ใช้กับ are",
+    questions: [
+      { q: "I _______ catching a train right now.", options: ["is", "am", "are", "do"], correct: 1, exp: "ใช้ 'am' คู่กับประธาน 'I' เสมอในประโยคที่บอกว่ากำลังทำบางอย่างอยู่" },
+      { q: "They _______ photos at the museum.", options: ["take", "is taking", "are taking", "takes"], correct: 2, exp: "They เป็นประธานพหูพจน์ (หลายคน) ต้องใช้ 'are' และเติม -ing ที่คำกริยา" },
+      { q: "Where can you watch a movie?", options: ["Library", "Station", "Movie theater", "Mall"], correct: 2, exp: "Movie theater คือโรงภาพยนตร์ เป็นที่สำหรับดูหนัง" },
+      { q: "Is it _______ outside?", options: ["rain", "rains", "raining", "rained"], correct: 2, exp: "หลัง Verb to be (is) ในประโยคคำถามที่ถามถึงเหตุการณ์ตอนนี้ ต้องใช้กริยาเติม -ing" },
+      { q: "We are _______ friends at the mall.", options: ["meet", "meeting", "meets", "met"], correct: 1, exp: "โครงสร้างกำลังทำ (Present Continuous) คือ are + กริยาเติม -ing (กำลังพบปะ)" }
+    ]
+  },
+  3: {
+    unit: 7,
+    title: "ระดับที่ 3: Our Busy World",
+    topic: "อาชีพและกิจวัตรประจำวัน",
+    tutorial: "สรุปบทเรียน: \n1. Simple Present: ใช้กับกิจวัตรหรือความจริง \n2. การเติม -s: ถ้าประธานเป็น He/She/It กริยาต้องเติม -s (He works) \n3. ประโยคปฏิเสธ: ใช้ doesn't สำหรับ He/She/It และ don't สำหรับ I/You/We/They \n4. การถามเหตุผล: ถามด้วย 'Why' (ทำไม) ต้องตอบด้วย 'Because' (เพราะว่า)",
+    questions: [
+      { q: "A _______ works with animals.", options: ["doctor", "chef", "vet", "pilot"], correct: 2, exp: "Vet (สัตวแพทย์) คืออาชีพที่ทำงานดูแลและรักษาสัตว์" },
+      { q: "Why do you want to be a chef? _______ I like to cook.", options: ["So", "Because", "But", "And"], correct: 1, exp: "เมื่อคำถามขึ้นต้นด้วย Why (ทำไม) เราต้องใช้ Because (เพราะว่า) ในคำตอบ" },
+      { q: "He _______ work outside.", options: ["don't", "doesn't", "isn't", "not"], correct: 1, exp: "ใช้ 'doesn't' เป็นคำปฏิเสธสำหรับประธานเอกพจน์ (He/She/It) ในรูปปัจจุบัน" },
+      { q: "Where _______ a doctor work?", options: ["do", "does", "is", "are"], correct: 1, exp: "ใช้ 'does' ในประโยคคำถามสำหรับประธานคนเดียว (a doctor)" },
+      { q: "She _______ people at the hospital.", options: ["help", "helps", "helping", "is help"], correct: 1, exp: "ใน Simple Present ถ้าประธานเป็น She กริยาต้องเติม -s (helps)" }
+    ]
+  },
+  4: {
+    unit: 8,
+    title: "ระดับที่ 4: Let's Explore",
+    topic: "เรื่องราวในอดีต (Was/Were/Could)",
+    tutorial: "สรุปบทเรียน: \n1. Past Tense (อดีต): ใช้พูดถึงสิ่งที่เกิดขึ้นไปแล้ว \n2. There was/were: แปลว่า 'มี' ในอดีต (was ใช้กับ 1 อย่าง / were ใช้กับหลายอย่าง) \n3. Could/Couldn't: ใช้บอกความสามารถในอดีต (ทำได้ / ทำไม่ได้ในตอนนั้น)",
+    questions: [
+      { q: "There _______ a lot of trees in the forest.", options: ["was", "were", "is", "are"], correct: 1, exp: "trees เติม s แสดงว่ามีหลายต้น (พหูพจน์) ในอดีตจึงต้องใช้ 'were'" },
+      { q: "Last night, I _______ sleep because it was noisy.", options: ["can't", "don't", "couldn't", "wasn't"], correct: 2, exp: "Last night เป็นอดีต การบอกว่าทำบางอย่างไม่ได้ต้องใช้ 'couldนท์'" },
+      { q: "_______ there any water in the river?", options: ["Was", "Were", "Did", "Could"], correct: 0, exp: "water เป็นนามนับไม่ได้ (Uncountable) ให้ถือเป็นเอกพจน์เสมอ จึงใช้ 'Was'" },
+      { q: "When he was young, he _______ climb trees.", options: ["can", "could", "is", "was"], correct: 1, exp: "พูดถึงความสามารถในตอนเด็ก (อดีต) ต้องใช้ 'could' (สามารถทำได้)" },
+      { q: "Were there many cars? No, there _______.", options: ["wasนท์", "weren't", "isn't", "not"], correct: 1, exp: "ถามด้วย Were there ในรูปปฏิเสธต้องตอบว่า No, there weren't (ย่อมาจาก were not)" }
+    ]
+  }
+};
+
+const App = () => {
+  const [currentStep, setCurrentStep] = useState('start'); 
+  const [level, setLevel] = useState(1);
+  const [qIndex, setQIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [isAnswered, setIsAnswered] = useState(false);
+  const [levelScores, setLevelScores] = useState({ 1: 0, 2: 0, 3: 0, 4: 0 });
+  const [responses, setResponses] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  // เปลี่ยน URL นี้เป็น Web App URL จาก Google Apps Script
+  const GOOGLE_SHEET_URL = ""; 
+
+  const currentLevelData = quizData[level];
+  const currentQuestion = currentLevelData.questions[qIndex];
+
+  const handleOptionClick = (idx) => {
+    if (isAnswered) return;
+    setSelected(idx);
+    setIsAnswered(true);
+    
+    const isCorrect = idx === currentQuestion.correct;
+    
+    const newResponse = {
+      level: level,
+      question: currentQuestion.q,
+      userAnswer: currentQuestion.options[idx],
+      correctAnswer: currentQuestion.options[currentQuestion.correct],
+      status: isCorrect ? 'Correct' : 'Incorrect'
+    };
+    
+    setResponses(prev => [...prev, newResponse]);
+
+    if (isCorrect) {
+      setScore(prev => prev + 1);
+      setLevelScores(prev => ({ ...prev, [level]: prev[level] + 1 }));
+    }
+  };
+
+  const handleNext = () => {
+    if (qIndex < 4) {
+      setQIndex(prev => prev + 1);
+      setSelected(null);
+      setIsAnswered(false);
+    } else {
+      setCurrentStep('tutorial');
+    }
+  };
+
+  const startNextLevel = () => {
+    if (level < 4) {
+      setLevel(prev => prev + 1);
+      setQIndex(0);
+      setSelected(null);
+      setIsAnswered(false);
+      setCurrentStep('quiz');
+    } else {
+      setCurrentStep('results');
+    }
+  };
+
+  const sendToGoogleSheet = async () => {
+    if (!GOOGLE_SHEET_URL) {
+      alert("กรุณาตั้งค่า GOOGLE_SHEET_URL ก่อนครับ");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    const payload = {
+      studentName: "ลูกชาย (Son)", // ใช้ชื่อคงที่ได้เลยครับ
+      totalScore: score,
+      details: responses,
+      timestamp: new Date().toLocaleString('th-TH')
+    };
+
+    try {
+      await fetch(GOOGLE_SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      setSubmitSuccess(true);
+    } catch (error) {
+      console.error("Submission failed", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const resetAll = () => {
+    setLevel(1);
+    setQIndex(0);
+    setScore(0);
+    setLevelScores({ 1: 0, 2: 0, 3: 0, 4: 0 });
+    setResponses([]);
+    setSelected(null);
+    setIsAnswered(false);
+    setCurrentStep('start');
+    setSubmitSuccess(false);
+  };
+
+  const getUnitIcon = (u) => {
+    const icons = { 5: <User />, 6: <MapPin />, 7: <Briefcase />, 8: <TreePine /> };
+    return icons[u] || <BookOpen />;
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-slate-900">
+      <div className="max-w-xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200">
+        
+        {/* Progress Header */}
+        <div className="bg-indigo-600 p-6 text-white relative">
+          <div className="flex justify-between items-center mb-2">
+            <h1 className="text-xl font-bold flex items-center gap-2">
+              <GraduationCap size={24} /> ติวสอบภาษาอังกฤษ ป.3
+            </h1>
+            <span className="bg-indigo-500 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+              {currentStep === 'quiz' ? `ข้อที่ ${qIndex + 1}/5` : 'ยินดีต้อนรับ'}
+            </span>
+          </div>
+          {currentStep === 'quiz' && (
+            <div className="w-full bg-indigo-800 h-1.5 rounded-full mt-2 overflow-hidden">
+              <div className="bg-white h-1.5 rounded-full transition-all duration-500" style={{ width: `${(qIndex + 1) * 20}%` }} />
+            </div>
+          )}
+        </div>
+
+        {/* Start Screen (No name input needed now) */}
+        {currentStep === 'start' && (
+          <div className="p-8 text-center animate-in fade-in zoom-in duration-300">
+            <div className="w-20 h-20 bg-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-6 text-indigo-600 rotate-3 shadow-inner">
+              <BookOpen size={40} />
+            </div>
+            <h2 className="text-2xl font-black mb-3 text-slate-800">พร้อมติวหรือยังครับ?</h2>
+            <p className="text-slate-500 mb-8 leading-relaxed">
+              แบบฝึกหัดทบทวน Unit 5-8 <br/>แบ่งเป็น 4 ระดับ พร้อมสรุปเนื้อหาท้ายบท
+            </p>
+            <button 
+              onClick={() => setCurrentStep('quiz')} 
+              className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold text-lg shadow-lg hover:bg-indigo-700 transition-all active:scale-95"
+            >
+              เริ่มทำแบบฝึกหัด
+            </button>
+          </div>
+        )}
+
+        {/* Quiz Screen */}
+        {currentStep === 'quiz' && (
+          <div className="p-6">
+            <div className="flex items-center gap-2 text-indigo-600 font-extrabold text-sm mb-4 uppercase tracking-widest">
+              {getUnitIcon(currentLevelData.unit)}
+              {currentLevelData.title}
+            </div>
+            <h3 className="text-xl font-bold text-slate-800 mb-8 leading-tight min-h-[3rem]">
+              {currentQuestion.q}
+            </h3>
+            <div className="space-y-3 mb-8">
+              {currentQuestion.options.map((opt, i) => (
+                <button
+                  key={i}
+                  disabled={isAnswered}
+                  onClick={() => handleOptionClick(i)}
+                  className={`w-full p-4 rounded-2xl border-2 text-left transition-all flex justify-between items-center
+                    ${!isAnswered ? 'border-slate-100 hover:border-indigo-300 hover:bg-indigo-50' : 
+                      i === currentQuestion.correct ? 'border-emerald-500 bg-emerald-50 text-emerald-800' : 
+                      i === selected ? 'border-rose-500 bg-rose-50 text-rose-800' : 'border-slate-50 opacity-40'}
+                  `}
+                >
+                  <span className="font-semibold text-lg">{opt}</span>
+                  {isAnswered && i === currentQuestion.correct && <CheckCircle2 className="text-emerald-500" size={24} />}
+                  {isAnswered && i === selected && i !== currentQuestion.correct && <XCircle className="text-rose-500" size={24} />}
+                </button>
+              ))}
+            </div>
+            {isAnswered && (
+              <div className="p-4 bg-amber-50 rounded-xl mb-6 text-sm border-l-4 border-amber-400 animate-in slide-in-from-left-2 shadow-sm">
+                <div className="flex items-center gap-2 font-bold text-amber-700 mb-1">
+                  <Lightbulb size={16} /> อธิบายเพิ่มเติม:
+                </div>
+                <div className="text-slate-700 font-medium">{currentQuestion.exp}</div>
+              </div>
+            )}
+            <button
+              disabled={!isAnswered}
+              onClick={handleNext}
+              className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-md
+                ${isAnswered ? 'bg-slate-800 text-white hover:bg-slate-900 active:scale-95' : 'bg-slate-100 text-slate-300 cursor-not-allowed'}
+              `}
+            >
+              ข้อต่อไป <ArrowRight size={18} />
+            </button>
+          </div>
+        )}
+
+        {/* Tutorial Screen */}
+        {currentStep === 'tutorial' && (
+          <div className="p-8 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="inline-block p-4 bg-emerald-100 text-emerald-700 rounded-full mb-4 shadow-sm">
+              <CheckCircle2 size={32} />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-800 mb-2">จบ{currentLevelData.title}แล้ว!</h2>
+            <div className="text-lg font-bold text-emerald-600 mb-6 bg-emerald-50 py-2 rounded-xl inline-block px-6 border border-emerald-100">
+              คะแนนที่ได้: {levelScores[level]} / 5
+            </div>
+            
+            <div className="bg-indigo-50 p-6 rounded-3xl text-left border border-indigo-100 mb-8 shadow-sm">
+              <h4 className="flex items-center gap-2 font-black text-indigo-800 mb-3 border-b border-indigo-200 pb-2">
+                <BookOpen size={20} /> สรุปเนื้อหาสำคัญ
+              </h4>
+              <div className="text-indigo-900 text-sm leading-relaxed whitespace-pre-line font-medium">
+                {currentLevelData.tutorial}
+              </div>
+            </div>
+
+            <button onClick={startNextLevel} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold text-lg hover:bg-indigo-700 shadow-lg active:scale-95 transition-transform">
+              {level < 4 ? `ไปยังระดับที่ ${level + 1}` : 'ดูคะแนนรวมทั้งหมด'}
+            </button>
+          </div>
+        )}
+
+        {/* Results Screen */}
+        {currentStep === 'results' && (
+          <div className="p-8 text-center animate-in zoom-in duration-500">
+            <div className="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg border-4 border-white">
+              <Award size={64} className="text-yellow-600" />
+            </div>
+            <h2 className="text-3xl font-black text-slate-800 mb-2">ทำเสร็จแล้วครับ!</h2>
+            <p className="text-slate-500 mb-4">เก่งมากที่ตั้งใจทำจนครบ 4 ระดับ</p>
+            <div className="text-6xl font-black text-indigo-600 my-4 tracking-tighter drop-shadow-sm">
+              {score}<span className="text-2xl text-slate-400"> / 20</span>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3 mb-8">
+              {[1,2,3,4].map(l => (
+                <div key={l} className="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-sm shadow-sm">
+                  <div className="text-slate-400 font-bold uppercase text-[10px]">ระดับ {l}</div>
+                  <div className={`font-black ${levelScores[l] >= 4 ? 'text-emerald-600' : 'text-slate-700'}`}>
+                    {levelScores[l]} / 5
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="space-y-3">
+              <button 
+                onClick={sendToGoogleSheet}
+                disabled={isSubmitting || submitSuccess}
+                className={`w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-md
+                  ${submitSuccess ? 'bg-emerald-500 text-white cursor-default' : 'bg-amber-500 text-white hover:bg-amber-600 active:scale-95'}
+                `}
+              >
+                {isSubmitting ? "กำลังส่ง..." : submitSuccess ? (
+                  <><CheckCircle2 size={20} /> ส่งคะแนนสำเร็จ!</>
+                ) : (
+                  <><Send size={20} /> ส่งคะแนนไปที่คุณพ่อ</>
+                )}
+              </button>
+
+              <button onClick={resetAll} className="w-full py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-slate-200 transition-all">
+                <RotateCcw size={20} /> เริ่มใหม่อีกครั้ง
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes zoom-in { from { transform: scale(0.95); } to { transform: scale(1); } }
+        @keyframes slide-in-from-left-2 { from { transform: translateX(-0.5rem); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slide-in-from-bottom-4 { from { transform: translateY(1rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-in { animation: fade-in 0.4s ease-out; }
+      `}} />
+    </div>
+  );
+};
+
+export default App;
