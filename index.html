@@ -269,7 +269,7 @@
                                     <div className="grid gap-3 pt-4">
                                         <button onClick={() => studentName ? setCurrentStep('quiz') : setErrorMessage("ใส่ชื่อก่อนนะลูก")} className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black text-xl shadow-lg hover:bg-indigo-700 active:scale-95 flex items-center justify-center gap-2 transition-all">เริ่มลุยใหม่ <Icon name="ArrowRight"/></button>
                                         <button onClick={checkProgress} disabled={isCheckingProgress} className="w-full py-4 bg-white text-indigo-600 border-2 border-indigo-100 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-50 transition-all">
-                                            {isCheckingProgress ? <Icon name="Loader2" className="animate-spin"/> : <Icon name="Search" size={20}/>} ดูคะแนนเดิม
+                                            {isCheckingProgress ? <Icon name="Loader2" className="animate-spin"/> : <Icon name="Search" size={20}/>} ต่อจากครั้งก่อน
                                         </button>
                                     </div>
                                 </div>
