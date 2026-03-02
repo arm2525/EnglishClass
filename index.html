@@ -4,340 +4,172 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>คนเก่งติวภาษาอังกฤษ ป.3</title>
-    <!-- Tailwind CSS for Styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React & Babel for Browser Execution -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;600;700&display=swap');
         body { font-family: 'Anuphan', sans-serif; }
-        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes zoom-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        @keyframes slide-in-from-bottom { from { transform: translateY(1rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .animate-fade { animation: fade-in 0.5s ease-out forwards; }
-        .animate-zoom { animation: zoom-in 0.5s ease-out forwards; }
-        .animate-slide { animation: slide-in-from-bottom 0.5s ease-out forwards; }
+        .animate-fade { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-900">
+<body class="bg-slate-50 min-h-screen">
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // --- Custom Icon Component (SVG based for reliability) ---
-        const Icon = ({ name, size = 24, className = "" }) => {
-            const icons = {
-                CheckCircle2: <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM9 12l2 2 4-4" />,
-                XCircle: <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM15 9l-6 6M9 9l6 6" />,
-                ChevronRight: <path d="m9 18 6-6-6-6" />,
-                RotateCcw: <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8M3 3v5h5" />,
-                Award: <path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526M20 7a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />,
-                BookOpen: <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zm20 0h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />,
-                MapPin: <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0zM12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />,
-                Briefcase: <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16M2 8h20M2 12h20M2 16h20M2 20h20M2 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z" />,
-                TreePine: <path d="m17 14-5-5-5 5h10zM16 18l-4-4-4 4h8zM12 18v3" />,
-                User: <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />,
-                GraduationCap: <path d="M22 10v6M2 10l10-5 10 5-10 5zM6 12v5c0 2 2 3 6 3s6-1 6-3v-5" />,
-                ArrowRight: <path d="M5 12h14M12 5l7 7-7 7" />,
-                Lightbulb: <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .5 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5M9 18h6M10 22h4" />,
-                Send: <path d="m22 2-7 20-4-9-9-4zM22 2l-11 11" />,
-                Check: <path d="M20 6 9 17l-5-5" />,
-                AlertCircle: <path d="M12 8v4M12 16h.01M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10z" />,
-                Search: <path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.35-4.35" />,
-                Loader2: <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />,
-                Trophy: <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.45 1-1 1H7.22c-.4 0-.72.32-.72.72v.28c0 .3.25.55.55.55H17c.3 0 .55-.25.55-.55v-.28c0-.4-.32-.72-.72-.72H15c-.55 0-1-.45-1-1v-2.34M12 15a6 6 0 0 0 6-6V3H6v6a6 6 0 0 0 6 6z" />,
-                Star: <path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />,
-                Sparkles: <path d="m12 3 1.91 5.82L20 10.73l-6.09 1.91L12 18.45l-1.91-5.82L4 10.73l6.09-1.91L12 3zM5 3l1 2M19 3l-1 2M5 19l1-2M19 19l-1-2" />,
-                Heart: <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7z" />,
-                PartyPopper: <path d="M5.8 11.3 2 22l10.7-3.8M4 3h.01M9 2h.01M15 4h.01M22 9h.01M20 16h.01M15 12l5-5M11 5l3 3M16 17l5 5M6.3 7.6l2.7 2.7" />,
-                RefreshCw: <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5" />
-            };
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzWyJ9tOyJfZwXTT3hiK0tf9gFyApLngELhJIihi5gOxVPwcYxbDjlSVw_yMz6XssIZfw/exec"; 
 
+        // --- ไอคอนแบบ SVG ---
+        const Icon = ({ name, className = "" }) => {
+            const icons = {
+                Check: <path d="M20 6 9 17l-5-5" />,
+                Trophy: <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.45 1-1 1H7.22c-.4 0-.72.32-.72.72v.28c0 .3.25.55.55.55H17c.3 0 .55-.25.55-.55v-.28c0-.4-.32-.72-.72-.72H15c-.55 0-1-.45-1-1v-2.34M12 15a6 6 0 0 0 6-6V3H6v6a6 6 0 0 0 6 6z" />,
+                Loader: <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />,
+                ArrowRight: <path d="M5 12h14M12 5l7 7-7 7" />
+            };
             return (
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width={size}
-                    height={size}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className={className}
-                >
-                    {icons[name] || null}
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                    {icons[name]}
                 </svg>
             );
         };
 
-        // --- Question Pool (Updated with Adverbs of Time) ---
-        const allQuestionsPool = [
-            { unit: 5, q: "What _______ she look like?", options: ["do", "does", "is", "has"], correct: 1, exp: "ใช้ 'does' กับประธานเอกพจน์ (He/She/It) เมื่อถามลักษณะปัจจุบัน" },
-            { unit: 5, q: "She _______ long, straight hair.", options: ["is", "have", "has", "does"], correct: 2, exp: "ใช้ 'has' บอกลักษณะปัจจุบันสำหรับประธานคนเดียว" },
-            { unit: 5, q: "My father is _______ than my uncle.", options: ["tall", "taller", "tallest", "more tall"], correct: 1, exp: "การเปรียบเทียบขั้นกว่า (Comparative) มักใช้ -er + than" },
-            { unit: 5, q: "He is the _______ student in the class.", options: ["strong", "stronger", "strongest", "more strong"], correct: 2, exp: "การเปรียบเทียบที่สุด (Superlative) ใช้ the + -est" },
-            { unit: 5, q: "Does he _______ glasses?", options: ["has", "have", "having", "is"], correct: 1, exp: "หลัง Does กริยาต้องเป็นรูปปกติ (have) เสมอ" },
-            
-            { unit: 6, q: "I _______ catching a train right now.", options: ["is", "am", "are", "do"], correct: 1, exp: "สังเกต 'right now' (ตอนนี้) ใช้ am + v.ing" },
-            { unit: 6, q: "They _______ photos at the museum at this moment.", options: ["take", "is taking", "are taking", "takes"], correct: 2, exp: "สังเกต 'at this moment' (ในขณะนี้) ใช้ are + v.ing" },
-            { unit: 6, q: "Where can you watch a movie?", options: ["Library", "Station", "Movie theater", "Mall"], correct: 2, exp: "Movie theater คือโรงภาพยนตร์" },
-            { unit: 6, q: "Look! Is it _______ outside?", options: ["rain", "rains", "raining", "rained"], correct: 2, exp: "คำว่า 'Look!' บอกว่าเหตุการณ์กำลังเกิด ต้องใช้ v.ing" },
-            { unit: 6, q: "We are _______ friends at the mall today.", options: ["meet", "meeting", "meets", "met"], correct: 1, exp: "are + meeting บอกสิ่งที่กำลังทำวันนี้" },
-
-            { unit: 7, q: "A _______ works with animals.", options: ["doctor", "chef", "vet", "pilot"], correct: 2, exp: "Vet (สัตวแพทย์) ดูแลรักษาสัตว์เป็นปกติ" },
-            { unit: 7, q: "Why do you want to be a chef? _______ I like to cook.", options: ["So", "Because", "But", "And"], correct: 1, exp: "ถาม Why ตอบ Because เพื่อบอกเหตุผล" },
-            { unit: 7, q: "He _______ work outside.", options: ["don't", "doesn't", "isn't", "not"], correct: 1, exp: "ใช้ doesn't กับประธานเอกพจน์ในเหตุการณ์ปกติ" },
-            { unit: 7, q: "Where _______ a doctor work?", options: ["do", "does", "is", "are"], correct: 1, exp: "ใช้ does ถามถึงกิจวัตรของคนคนเดียว" },
-            { unit: 7, q: "She _______ people at the hospital every day.", options: ["help", "helps", "helping", "is help"], correct: 1, exp: "สังเกต 'every day' ประธาน She กริยาเติม s" },
-
-            { unit: 8, q: "There _______ a lot of trees in the forest last year.", options: ["was", "were", "is", "are"], correct: 1, exp: "สังเกต 'last year' เป็นอดีต และ trees มีหลายต้น จึงใช้ were" },
-            { unit: 8, q: "Last night, I _______ sleep because it was noisy.", options: ["can't", "don't", "couldn't", "wasn't"], correct: 2, exp: "สังเกต 'Last night' บอกความสามารถในอดีตใช้ couldn't" },
-            { unit: 8, q: "_______ there any water in the river yesterday?", options: ["Was", "Were", "Did", "Could"], correct: 0, exp: "สังเกต 'yesterday' water นับไม่ได้ ในอดีตใช้ Was" },
-            { unit: 8, q: "When he was young, he _______ climb trees.", options: ["can", "could", "is", "was"], correct: 1, exp: "ประโยค 'When he was young' บอกอดีต จึงใช้ could" },
-            { unit: 8, q: "Were there many cars two hours ago? No, there _______.", options: ["wasn't", "weren't", "isn't", "not"], correct: 1, exp: "สังเกต 'two hours ago' ถาม Were ตอบ weren't" }
-        ];
-
         const App = () => {
-            const [currentStep, setCurrentStep] = useState('start'); 
+            const [questionsPool, setQuestionsPool] = useState([]);
+            const [isLoading, setIsLoading] = useState(true);
+            const [currentStep, setCurrentStep] = useState('start');
             const [studentName, setStudentName] = useState('');
             const [level, setLevel] = useState(1);
             const [qIndex, setQIndex] = useState(0);
             const [score, setScore] = useState(0);
+            const [lvlScore, setLvlScore] = useState(0);
             const [selected, setSelected] = useState(null);
             const [isAnswered, setIsAnswered] = useState(false);
-            const [levelScores, setLevelScores] = useState({ 1: 0, 2: 0, 3: 0, 4: 0 });
-            const [isSubmitting, setIsSubmitting] = useState(false);
-            const [isCheckingProgress, setIsCheckingProgress] = useState(false);
-            const [errorMessage, setErrorMessage] = useState("");
-            const [praise, setPraise] = useState("");
 
-            // --- ใส่ URL จาก Google Apps Script ที่นี่ ---
-            const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzWyJ9tOyJfZwXTT3hiK0tf9gFyApLngELhJIihi5gOxVPwcYxbDjlSVw_yMz6XssIZfw/exec"; 
+            // 1. โหลดคำถามจาก Sheet
+            useEffect(() => {
+                fetch(`${GOOGLE_SHEET_URL}?action=getQuestions`)
+                    .then(res => res.json())
+                    .then(data => { setQuestionsPool(data); setIsLoading(false); })
+                    .catch(() => alert("โหลดคำถามไม่สำเร็จ!"));
+            }, []);
 
-            const levelsConfig = useMemo(() => [
-                { id: 1, title: "Level 1: Explorer", questions: allQuestionsPool.slice(0, 5) },
-                { id: 2, title: "Level 2: Expert", questions: allQuestionsPool.slice(5, 10) },
-                { id: 3, title: "Level 3: Master", questions: allQuestionsPool.slice(10, 15) },
-                { id: 4, title: "Level 4: Grandmaster", questions: allQuestionsPool.slice(15, 20) }
-            ], []);
+            // 2. จัดกลุ่มเลเวล
+            const levelsConfig = useMemo(() => {
+                const groups = {};
+                questionsPool.forEach(q => {
+                    if (!groups[q.level]) groups[q.level] = { id: q.level, questions: [] };
+                    groups[q.level].questions.push(q);
+                });
+                return Object.values(groups).sort((a,b) => a.id - b.id);
+            }, [questionsPool]);
 
-            const currentLevelData = levelsConfig[level - 1];
+            const currentLevelData = levelsConfig.find(l => l.id === level);
             const currentQuestion = currentLevelData?.questions[qIndex];
 
+            // 3. ตรวจสอบคะแนนเดิม
             const checkProgress = async () => {
-                if (!studentName.trim()) {
-                    setErrorMessage("กรุณากรอกชื่อก่อนครับ");
-                    setTimeout(() => setErrorMessage(""), 3000);
-                    return;
+                if (!studentName) return alert("ใส่ชื่อก่อนนะลูก");
+                setIsLoading(true);
+                const res = await fetch(`${GOOGLE_SHEET_URL}?action=getProgress&name=${encodeURIComponent(studentName)}`);
+                const data = await res.json();
+                if (data.found) {
+                    setLevel(data.lastLevel);
+                    setScore(data.totalScore);
                 }
-                if (!GOOGLE_SHEET_URL) {
-                    setErrorMessage("ยังไม่ได้ตั้งค่า Google Sheet URL");
-                    setTimeout(() => setErrorMessage(""), 3000);
-                    return;
-                }
-                setIsCheckingProgress(true);
-                try {
-                    const res = await fetch(`${GOOGLE_SHEET_URL}?action=getProgress&name=${encodeURIComponent(studentName.trim())}`);
-                    const data = await res.json();
-                    if (data && data.lastLevel) {
-                        setLevel(data.lastLevel > 4 ? 4 : data.lastLevel);
-                        setScore(data.totalScore || 0);
-                        setQIndex(0);
-                        setCurrentStep('quiz');
-                    } else {
-                        setErrorMessage("ไม่พบข้อมูลเก่า ลุยใหม่เลย!");
-                        setTimeout(() => { setErrorMessage(""); setCurrentStep('quiz'); }, 2000);
-                    }
-                } catch (e) {
-                    setErrorMessage("เชื่อมต่อไม่ได้ เริ่มใหม่นะครับ");
-                    setTimeout(() => setCurrentStep('quiz'), 2000);
-                } finally {
-                    setIsCheckingProgress(false);
-                }
+                setCurrentStep('quiz');
+                setIsLoading(false);
             };
 
-            const handleOptionClick = (idx) => {
+            const handleAnswer = (idx) => {
                 if (isAnswered) return;
                 setSelected(idx);
                 setIsAnswered(true);
-                const isCorrect = idx === currentQuestion.correct;
-                if (isCorrect) {
+                if (idx === currentQuestion.correct) {
                     setScore(s => s + 1);
-                    setLevelScores(prev => ({ ...prev, [level]: prev[level] + 1 }));
-                    const praises = ["เก่งมากครับลูก!", "ว้าว! เยี่ยมที่สุด", "ถูกต้องแล้วครับ!", "สุดยอดไปเลย!"];
-                    setPraise(praises[Math.floor(Math.random() * praises.length)]);
-                } else {
-                    setPraise("ไม่เป็นไรนะลูก ข้อนี้ตอบ " + currentQuestion.options[currentQuestion.correct]);
+                    setLvlScore(s => s + 1);
                 }
             };
 
-            const handleNext = async () => {
-                if (qIndex < 4) {
-                    setQIndex(i => i + 1);
+            const nextQuestion = async () => {
+                if (qIndex < currentLevelData.questions.length - 1) {
+                    setQIndex(qIndex + 1);
                     setSelected(null);
                     setIsAnswered(false);
-                    setPraise("");
                 } else {
-                    await submitLevel();
+                    // จบเลเวล -> บันทึกคะแนน
+                    await fetch(GOOGLE_SHEET_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: JSON.stringify({ studentName, levelCompleted: level, levelScore: lvlScore, totalScore: score + (selected === currentQuestion.correct ? 1 : 0) })
+                    });
                     setCurrentStep('tutorial');
                 }
             };
 
-            const submitLevel = async () => {
-                if (!GOOGLE_SHEET_URL) return;
-                setIsSubmitting(true);
-                try {
-                    await fetch(GOOGLE_SHEET_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        body: JSON.stringify({
-                            studentName,
-                            levelCompleted: level,
-                            levelScore: levelScores[level],
-                            totalScore: score,
-                            timestamp: new Date().toLocaleString('th-TH')
-                        })
-                    });
-                } catch (error) {
-                    console.error("Submission failed", error);
-                } finally {
-                    setIsSubmitting(false);
-                }
-            };
-
-            const resetAll = () => {
-                setLevel(1);
-                setQIndex(0);
-                setScore(0);
-                setLevelScores({ 1: 0, 2: 0, 3: 0, 4: 0 });
-                setSelected(null);
-                setIsAnswered(false);
-                setPraise("");
-                setCurrentStep('start');
-            };
-
-            const startNextLevel = () => {
-                if (level < 4) {
-                    setLevel(prev => prev + 1);
-                    setQIndex(0);
-                    setSelected(null);
-                    setIsAnswered(false);
-                    setPraise("");
-                    setCurrentStep('quiz');
-                } else {
-                    setCurrentStep('results');
-                }
-            };
+            if (isLoading) return <div className="flex h-screen items-center justify-center font-bold text-indigo-600"><Icon name="Loader" className="animate-spin mr-2"/> กำลังเตรียมบทเรียน...</div>;
 
             return (
-                <div className="flex items-center justify-center p-2 md:p-4 w-full">
-                    <div className="max-w-xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col min-h-[600px] relative">
-                        {errorMessage && (
-                            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-rose-500 text-white px-6 py-2 rounded-full shadow-lg flex items-center gap-2 animate-bounce whitespace-nowrap">
-                                <Icon name="AlertCircle" size={18} /> <span className="text-sm font-bold">{errorMessage}</span>
-                            </div>
-                        )}
-
-                        <div className="bg-indigo-600 p-6 text-white shrink-0 relative">
-                            <div className="flex justify-between items-center mb-4">
-                                <h1 className="text-lg font-bold flex items-center gap-2"><Icon name="GraduationCap" size={24}/> คนเก่งติวอังกฤษ</h1>
-                                <div className="bg-indigo-500 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border border-indigo-400">
-                                    {currentStep === 'quiz' ? `ข้อ ${qIndex + 1} / 5` : 'Smart Quiz'}
-                                </div>
-                            </div>
-                            <div className="w-full bg-indigo-800/50 h-2 rounded-full overflow-hidden">
-                                <div className="h-full bg-white transition-all duration-700" 
-                                     style={{ width: currentStep === 'quiz' ? `${((level - 1) * 5 + (qIndex + 1)) * 5}%` : currentStep === 'results' ? '100%' : '0%' }} />
-                            </div>
+                <div className="max-w-md mx-auto p-4 min-h-screen flex flex-col justify-center">
+                    {currentStep === 'start' && (
+                        <div className="bg-white p-8 rounded-3xl shadow-xl text-center animate-fade">
+                            <h1 className="text-3xl font-black text-indigo-600 mb-6">คนเก่งติวอังกฤษ</h1>
+                            <input type="text" placeholder="ชื่อเล่นของลูก..." className="w-full p-4 border-2 rounded-2xl mb-4 text-center text-xl font-bold" 
+                                value={studentName} onChange={e => setStudentName(e.target.value)} />
+                            <button onClick={() => setCurrentStep('quiz')} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold mb-2">เริ่มใหม่เลย</button>
+                            <button onClick={checkProgress} className="w-full py-4 border-2 border-indigo-100 text-indigo-600 rounded-2xl font-bold">เรียนต่อจากเดิม</button>
                         </div>
+                    )}
 
-                        <div className="flex-1 flex flex-col overflow-y-auto p-6">
-                            {currentStep === 'start' && (
-                                <div className="text-center animate-zoom space-y-6 py-10">
-                                    <div className="w-24 h-24 bg-indigo-50 rounded-3xl flex items-center justify-center mx-auto text-indigo-600 shadow-inner border border-indigo-100">
-                                        <Icon name="Heart" size={48} className="text-rose-500 fill-rose-500 animate-pulse" />
-                                    </div>
-                                    <h2 className="text-2xl font-black text-slate-800 tracking-tight">พร้อมลุยหรือยังครับลูก?</h2>
-                                    <div className="text-left bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">ใส่ชื่อคนเก่ง</label>
-                                        <input type="text" value={studentName} onChange={e => setStudentName(e.target.value)} placeholder="ชื่อเล่นลูกชาย..." className="w-full p-4 rounded-xl border-2 focus:border-indigo-500 outline-none font-bold text-lg"/>
-                                    </div>
-                                    <div className="grid gap-3 pt-4">
-                                        <button onClick={() => studentName ? setCurrentStep('quiz') : setErrorMessage("ใส่ชื่อก่อนนะลูก")} className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black text-xl shadow-lg hover:bg-indigo-700 active:scale-95 flex items-center justify-center gap-2 transition-all">เริ่มลุยใหม่ <Icon name="ArrowRight"/></button>
-                                        <button onClick={checkProgress} disabled={isCheckingProgress} className="w-full py-4 bg-white text-indigo-600 border-2 border-indigo-100 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-50 transition-all">
-                                            {isCheckingProgress ? <Icon name="Loader2" className="animate-spin"/> : <Icon name="Search" size={20}/>} ต่อจากครั้งก่อน
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {currentStep === 'quiz' && (
-                                <div className="animate-fade space-y-6 h-full flex flex-col">
-                                    <div className="flex justify-between items-center text-indigo-600 font-black text-xs uppercase tracking-widest">
-                                        <span>{currentLevelData.title}</span>
-                                        <span className="bg-indigo-50 px-2 py-1 rounded">Unit {currentQuestion.unit}</span>
-                                    </div>
-                                    <div className="bg-slate-50 rounded-3xl p-8 border border-slate-100 flex-1 flex items-center justify-center italic text-xl md:text-2xl font-bold text-slate-800 text-center shadow-inner">
-                                        "{currentQuestion.q}"
-                                    </div>
-                                    <div className="grid gap-3">
-                                        {currentQuestion.options.map((opt, i) => (
-                                            <button key={i} disabled={isAnswered} onClick={() => handleOptionClick(i)} className={`w-full p-4 rounded-2xl border-2 text-left flex justify-between items-center transition-all shadow-sm ${!isAnswered ? 'bg-white border-slate-100 hover:border-indigo-400 hover:shadow-md' : i === currentQuestion.correct ? 'bg-emerald-50 border-emerald-500 text-emerald-800' : i === selected ? 'bg-rose-50 border-rose-500 text-rose-800' : 'opacity-40 border-slate-50'}`}>
-                                                <span className="font-bold">{opt}</span>
-                                                {isAnswered && i === currentQuestion.correct && <Icon name="CheckCircle2" className="text-emerald-500"/>}
-                                                {isAnswered && i === selected && i !== currentQuestion.correct && <Icon name="XCircle" className="text-rose-500"/>}
-                                            </button>
-                                        ))}
-                                    </div>
-                                    {isAnswered && (
-                                        <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 animate-slide shadow-sm">
-                                            <div className="flex gap-2 text-amber-700 font-black text-xs uppercase"><Icon name="Lightbulb" size={14}/> {praise}</div>
-                                            <p className="text-slate-600 text-sm mt-1 font-medium">{currentQuestion.exp}</p>
-                                        </div>
-                                    )}
-                                    <button disabled={!isAnswered} onClick={handleNext} className={`w-full py-4 rounded-2xl font-black text-lg flex items-center justify-center gap-2 transition-all shadow-md ${isAnswered ? 'bg-slate-900 text-white hover:bg-black active:scale-95' : 'bg-slate-100 text-slate-300'}`}>
-                                        ข้อต่อไป <Icon name="ArrowRight" size={18}/>
+                    {currentStep === 'quiz' && currentQuestion && (
+                        <div className="bg-white p-6 rounded-3xl shadow-xl animate-fade">
+                            <div className="flex justify-between text-xs font-bold text-slate-400 mb-4 uppercase">
+                                <span>Level {level}</span>
+                                <span>ข้อ {qIndex + 1}/{currentLevelData.questions.length}</span>
+                            </div>
+                            <div className="bg-slate-50 p-6 rounded-2xl mb-6 text-center text-xl font-bold text-slate-800">
+                                {currentQuestion.q}
+                            </div>
+                            <div className="space-y-3 mb-6">
+                                {currentQuestion.options.map((opt, i) => (
+                                    <button key={i} onClick={() => handleAnswer(i)} disabled={isAnswered}
+                                        className={`w-full p-4 rounded-xl text-left font-bold transition-all border-2 ${
+                                            !isAnswered ? 'border-slate-100 hover:border-indigo-500' :
+                                            i === currentQuestion.correct ? 'bg-emerald-50 border-emerald-500 text-emerald-700' :
+                                            i === selected ? 'bg-rose-50 border-rose-500 text-rose-700' : 'border-slate-50 opacity-50'
+                                        }`}>
+                                        {opt}
                                     </button>
+                                ))}
+                            </div>
+                            {isAnswered && (
+                                <div className="p-4 bg-indigo-50 rounded-xl mb-4 text-sm animate-fade">
+                                    <p className="font-bold text-indigo-700">💡 คำอธิบาย:</p>
+                                    <p className="text-indigo-900">{currentQuestion.exp}</p>
                                 </div>
                             )}
-
-                            {currentStep === 'tutorial' && (
-                                <div className="text-center animate-fade py-10 space-y-6">
-                                    <Icon name="Trophy" size={80} className="mx-auto text-yellow-400 drop-shadow-lg" />
-                                    <h2 className="text-2xl font-black text-indigo-600">จบเลเวล {level} แล้ว!</h2>
-                                    <div className="bg-indigo-50 p-6 rounded-[2rem] text-left border border-indigo-100 space-y-4 shadow-sm">
-                                        <h4 className="font-black text-indigo-800 text-sm flex items-center gap-2 uppercase tracking-widest"><Icon name="BookOpen" size={16}/> เทคนิคช่วยจำ:</h4>
-                                        <ul className="text-indigo-900/80 text-sm font-medium space-y-3">
-                                            <li className="flex gap-2"><span>•</span> <b>Yesterday/Last...:</b> เรื่องอดีตใช้ was/were/could</li>
-                                            <li className="flex gap-2"><span>•</span> <b>Now/Look!:</b> กำลังทำใช้ is/am/are + v.ing</li>
-                                            <li className="flex gap-2"><span>•</span> <b>Every day:</b> กิจวัตรประธานคนเดียว กริยาเติม s</li>
-                                        </ul>
-                                    </div>
-                                    <button onClick={startNextLevel} className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black text-xl shadow-xl active:scale-95 transition-all">ลุยต่อเลเวล {level + 1}!</button>
-                                </div>
-                            )}
-
-                            {currentStep === 'results' && (
-                                <div className="text-center animate-zoom py-10 space-y-8">
-                                    <Icon name="PartyPopper" size={80} className="mx-auto text-yellow-500 drop-shadow-lg" />
-                                    <h2 className="text-3xl font-black text-slate-800">จบการติวแล้วคนเก่ง!</h2>
-                                    <div className="bg-indigo-600 p-8 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden">
-                                        <div className="absolute top-0 right-0 p-4 opacity-10"><Icon name="Sparkles" size={100}/></div>
-                                        <div className="text-xs font-bold uppercase tracking-[0.2em] opacity-60 mb-2">คะแนนรวมทั้งหมด</div>
-                                        <div className="text-7xl font-black">{score}<span className="text-2xl opacity-40 ml-1">/20</span></div>
-                                    </div>
-                                    <button onClick={resetAll} className="w-full py-5 bg-slate-900 text-white rounded-2xl font-black text-xl shadow-xl active:scale-95 transition-all">ฝึกใหม่อีกครั้ง</button>
-                                </div>
-                            )}
+                            <button onClick={nextQuestion} disabled={!isAnswered}
+                                className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 ${isAnswered ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-300'}`}>
+                                ข้อต่อไป <Icon name="ArrowRight" />
+                            </button>
                         </div>
-                        <div className="p-4 bg-slate-50 text-[10px] text-center text-slate-400 border-t border-slate-100 uppercase tracking-widest font-bold">
-                            English Practice for Son • Grade 3
+                    )}
+
+                    {currentStep === 'tutorial' && (
+                        <div className="bg-white p-8 rounded-3xl shadow-xl text-center animate-fade">
+                            <Icon name="Trophy" className="mx-auto text-yellow-400 w-20 h-20 mb-4" />
+                            <h2 className="text-2xl font-black text-slate-800 mb-2">เก่งมากครับลูก!</h2>
+                            <p className="text-slate-500 mb-6">จบเลเวล {level} แล้ว ไปต่อกันเลยไหม?</p>
+                            <button onClick={() => { setLevel(level + 1); setQIndex(0); setLvlScore(0); setSelected(null); setIsAnswered(false); setCurrentStep('quiz'); }}
+                                className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold">
+                                ลุยเลเวล {level + 1} ต่อ!
+                            </button>
                         </div>
-                    </div>
+                    )}
                 </div>
             );
         };
